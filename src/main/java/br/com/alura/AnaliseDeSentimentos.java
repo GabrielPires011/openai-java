@@ -78,7 +78,7 @@ public class AnaliseDeSentimentos {
                     }
                     case 429 -> {
                         System.out.println("Rate Limit atingido! Nova tentativa em instantes!");
-                        Thread.sleep(1000 * 5);
+                        Thread.sleep(segundoParaProximaTentativa);
                         segundoParaProximaTentativa *= 2;
                     }
                 }
