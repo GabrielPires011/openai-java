@@ -13,27 +13,36 @@ public class CatagorizadorDeProdutos {
 
     public static void main(String[] args) {
 
-        var scarnner = new Scanner(System.in);
+        var leitor = new Scanner(System.in);
 
-        var system = """
-        Você é um categorizador de produtos e deve responder apenas o nome da categoria do produto informado
-        
-        Escolha uma categoria dentra a lista abaixo:
-        
-        1. Higiene pessoal
-        2. Eletronicos
-        3. Esportes
-        4. Outros
-        
-        ##### exemplo de uso:
-        
-        Pergunta: Bola de futebol
-        Resposta: Esportes
-        """;
+        System.out.print("Digite as categorias válidas: ");
+        var categorias = leitor.nextLine();
 
-        System.out.print("Informe seu produto: ");
-        var user = scarnner.nextLine();
+        while (true) {
+            System.out.print("Informe seu produto: ");
+            var user = leitor.nextLine();
 
+            var system = """
+                    Você é um categorizador de produtos e deve responder apenas o nome da categoria do produto informado
+                            
+                    Escolha uma categoria dentra a lista abaixo:
+                            
+                    %s
+                            
+                    ##### exemplo de uso:
+                            
+                    Pergunta: Bola de futebol
+                    Resposta: Esportes
+                    
+                    ##### regras a serem seguidas:
+                    Caso o usuario pergunte algo que nao seja de categorizacao de produtos, voce deve responder que nao pode ajudar pois o seu papel é apenas responder a categoria dos produtos
+                    """.formatted(categorias);
+
+            dispararRequisicao(user, system);
+        }
+    }
+
+    public static void dispararRequisicao(String user, String system) {
         var chave = System.getenv("OPENAI_API_KEY");
         var service = new OpenAiService(chave, Duration.ofSeconds(30));
 
@@ -42,15 +51,11 @@ public class CatagorizadorDeProdutos {
                 .model("gpt-3.5-turbo")
                 .messages(Arrays.asList(new ChatMessage(ChatMessageRole.USER.value(), user),
                         new ChatMessage(ChatMessageRole.SYSTEM.value(), system)))
-                .n(2)
                 .build();
 
         service
                 .createChatCompletion(completionRequest)
                 .getChoices()
-                .forEach(c -> {
-                    System.out.println(c.getMessage().getContent());
-                    System.out.println("---------------------------------------------");
-                });
+                .forEach(c -> System.out.println(c.getMessage().getContent()));
     }
 }
