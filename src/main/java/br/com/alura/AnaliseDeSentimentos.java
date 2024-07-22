@@ -59,6 +59,8 @@ public class AnaliseDeSentimentos {
                                 promptUsuario)))
                 .build();
 
+        var segundoParaProximaTentativa = 1000 * 5;
+
         var tentativas = 0;
         while (tentativas++ != 5) {
             try {
@@ -71,7 +73,13 @@ public class AnaliseDeSentimentos {
                     case 401 -> throw new RuntimeException("Erro com a cahve da API!", openAiHttpException);
                     case 500, 503 -> {
                         System.out.println("API fora do ar! Nova tentativa em instantes!");
+                        Thread.sleep(segundoParaProximaTentativa);
+                        segundoParaProximaTentativa *= 2;
+                    }
+                    case 429 -> {
+                        System.out.println("Rate Limit atingido! Nova tentativa em instantes!");
                         Thread.sleep(1000 * 5);
+                        segundoParaProximaTentativa *= 2;
                     }
                 }
             }
